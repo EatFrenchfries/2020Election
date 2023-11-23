@@ -1,0 +1,23 @@
+@mixin media($device) {
+  @if $device == "wide" {
+    @media only screen and (min-width: 1280px) {
+      @content;
+    }
+  } @else if $device == "PC" {
+    @media only screen and (max-width: 1279px) {
+      @content;
+    }
+  } @else if $device == "TB" {
+    @media only screen and (max-width: 960px) {
+      @content;
+    }
+  } @else if $device == "mobile" {
+    @media only screen and (max-width: 720px) {
+      @content;
+    }
+  } @else if $device == "sm" {
+    @media only screen and (max-width: 400px) {
+      @content;
+    }
+  }
+}
