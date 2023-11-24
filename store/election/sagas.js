@@ -1,9 +1,13 @@
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import axios from "axios";
 import { FETCH_DISTRICT, FETCH_VILLAGE } from "./types";
-import { fetchDistrictSuccess, fetchVillageSuccess } from "./actions";
 import {
-  concatCode,
+  fetchDistrictFail,
+  fetchDistrictSuccess,
+  fetchVillageFail,
+  fetchVillageSuccess,
+} from "./actions";
+import {
   formatAreasProfilesObj,
   formatAreasTickets,
   formatOptions,
@@ -26,7 +30,10 @@ function* fetchDistrict(action) {
     if (
       options.status === 200 &&
       tickets.status === 200 &&
-      profiles.status === 200
+      profiles.status === 200 &&
+      options.data?.[code]?.length > 0 &&
+      tickets.data?.[code]?.length > 0 &&
+      profiles.data?.[code]?.length > 0
     ) {
       const returnData = {
         options: formatOptions(options.data?.[code]),
@@ -34,9 +41,12 @@ function* fetchDistrict(action) {
         profiles: formatAreasProfilesObj(profiles.data?.[code]),
       };
       yield put(fetchDistrictSuccess(returnData));
+    } else {
+      yield put(fetchDistrictFail());
     }
   } catch (error) {
     console.log(error);
+    yield put(fetchDistrictFail());
   }
 }
 
@@ -57,7 +67,10 @@ function* fetchVillage(action) {
     if (
       options.status === 200 &&
       tickets.status === 200 &&
-      profiles.status === 200
+      profiles.status === 200 &&
+      options.data?.[district]?.length > 0 &&
+      tickets.data?.[district]?.length > 0
+      // profiles.data?.[district]?.length > 0
     ) {
       const returnData = {
         options: formatOptions(options.data?.[district]),
@@ -65,9 +78,12 @@ function* fetchVillage(action) {
         profiles: formatAreasProfilesObj(profiles.data?.[district]),
       };
       yield put(fetchVillageSuccess(returnData));
+    } else {
+      yield put(fetchVillageFail());
     }
   } catch (error) {
     console.log(error);
+    yield put(fetchVillageFail());
   }
 }
 

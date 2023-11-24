@@ -3,6 +3,7 @@
 .container {
   height: 100%;
   font-size: $H6;
+  position: relative;
   .tabBar {
     display: inline-block;
     font-size: $H6;
@@ -288,6 +289,11 @@
             margin-top: 12px;
           }
         }
+        &.error {
+          background-color: #ffdede;
+          border-color: #fd9898;
+          color: #ff3d3d;
+        }
       }
       .tip + .tip,
       .details + .details {
@@ -326,7 +332,13 @@
         .partyPieChart {
           margin: 0 20px;
           display: none;
+          opacity: 0;
+          pointer-events: none;
+          animation: show 0.5s ease-in;
+          animation-fill-mode: forwards;
           &.show {
+            opacity: 1;
+            pointer-events: auto;
             display: flex;
             align-items: center;
           }
@@ -375,6 +387,17 @@
           margin: 20px 10px 12px;
         }
       }
+    }
+  }
+  .errorText {
+    position: absolute;
+    left: 230px;
+    top: 8px;
+    color: #fd8e8e;
+    @include media("mobile") {
+      font-size: $h6;
+      left: 188px;
+      top: 10px;
     }
   }
 }

@@ -21,7 +21,7 @@ import Tip1 from "public/images/tip1.svg";
 import Tip2 from "public/images/tip2.svg";
 
 import styles from "./index.module.scss";
-import { concatCode, formatPrice } from "utils";
+import { formatPrice } from "utils";
 
 const COLORS = ["#262E49", "#CCCCCC"];
 const PARTYCOLORS = ["#DFA175", "#8894D8", "#84CB98"];
@@ -39,7 +39,8 @@ const Home = (props) => {
     sortedCitysTickets,
     citysProfilesObj,
   } = props;
-  const { districtData, villageData } = useSelector(getElection);
+  const { districtData, villageData, fetchDistrictFail, fetchVillageFail } =
+    useSelector(getElection);
   const {
     options: districtOptions,
     tickets: districtTickets,
@@ -121,25 +122,33 @@ const Home = (props) => {
     }
   }, [city]);
   useEffect(() => {
-    if (district) {
+    if (district && !fetchDistrictFail) {
       setVillage(null);
       setCode(district);
       setAreasData({
         tickets: districtTickets,
-        totalData: formatData(districtProfiles[district.value]),
-        totalTickets: formatTickets(districtProfiles[district.value]),
+        totalData: districtProfiles
+          ? formatData(districtProfiles[district.value])
+          : [],
+        totalTickets: districtProfiles
+          ? formatTickets(districtProfiles[district.value])
+          : [],
         profilesObj: districtProfiles,
       });
       dispatch(fetchVillage({ city: city.value, district: district.value }));
     }
   }, [district]);
   useEffect(() => {
-    if (village) {
+    if (village && !fetchVillageFail) {
       setCode(village);
       setAreasData({
         tickets: villageTickets,
-        totalData: formatData(villageProfiles[village.value]),
-        totalTickets: formatTickets(villageProfiles[village.value]),
+        totalData: villageProfiles
+          ? formatData(villageProfiles[village.value])
+          : [],
+        totalTickets: villageProfiles
+          ? formatTickets(villageProfiles[village.value])
+          : [],
         profilesObj: villageProfiles,
       });
     }
@@ -168,6 +177,9 @@ const Home = (props) => {
     });
     return (
       <div className={styles.container}>
+        {(fetchDistrictFail || fetchVillageFail) && (
+          <div className={styles.errorText}>讀取區域資料失敗，請稍後再試！</div>
+        )}
         <div className={styles.tabBar}>第15任 總統副總統大選</div>
         <div className={styles.search}>
           <div className={styles.dropDown}>
@@ -399,6 +411,16 @@ const CustomPieChart = dynamic(() => import("components/CustomPieChart"), {
 });
 
 const Details = ({ area, areasTickets }) => {
+  if (
+    !areasTickets ||
+    Object.keys(areasTickets).length < 1 ||
+    [...areasTickets[area.value]].length < 0
+  )
+    return (
+      <div className={`${styles.details} ${styles.error}`}>
+        <p>讀取資料時發生錯誤，請稍後再試！</p>
+      </div>
+    );
   const sortedAreaTicktes = [...areasTickets[area.value]]?.sort(
     (a, b) => b.value - a.value
   );

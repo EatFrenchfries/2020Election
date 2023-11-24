@@ -7,6 +7,8 @@ import {
   FETCH_VILLAGE_SUCCESS,
   RESET_DISTRICT,
   RESET_VILLAGE,
+  FETCH_DISTRICT_FAIL,
+  FETCH_VILLAGE_FAIL,
 } from "./types";
 
 export const setTotalCand = (totalCand) => ({
@@ -35,6 +37,11 @@ export const fetchDistrictSuccess = (data) => ({
   type: FETCH_DISTRICT_SUCCESS,
   data,
 });
+
+export const fetchDistrictFail = () => ({
+  type: FETCH_DISTRICT_FAIL,
+});
+
 export const fetchVillage = (code) => ({
   type: FETCH_VILLAGE,
   code,
@@ -43,4 +50,8 @@ export const fetchVillage = (code) => ({
 export const fetchVillageSuccess = (data) => ({
   type: FETCH_VILLAGE_SUCCESS,
   data,
+});
+
+export const fetchVillageFail = () => ({
+  type: FETCH_VILLAGE_FAIL,
 });

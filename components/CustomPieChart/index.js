@@ -45,14 +45,11 @@ const renderActiveShape = (props) => {
 };
 
 const CustomPieChart = ({ data, colors, type, showMin }) => {
-  const [isShow, setIsShow] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
   const handleHover = ({ percent, name }, index) => {
-    setIsShow(true);
     setActiveIndex(index);
   };
   const handleLeave = () => {
-    setIsShow(false);
     setActiveIndex(null);
   };
   return (
@@ -83,7 +80,7 @@ const CustomPieChart = ({ data, colors, type, showMin }) => {
           onMouseEnter={handleHover}
           onMouseLeave={handleLeave}
           animationBegin={10}
-          animationDuration={800}
+          animationDuration={500}
           animationEasing="ease-in-out"
           activeShape={renderActiveShape}
           activeIndex={activeIndex}
