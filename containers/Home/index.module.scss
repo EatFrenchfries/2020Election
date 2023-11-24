@@ -272,6 +272,10 @@
         border: 2px solid #84cb98;
         border-radius: 8px;
         padding: 12px 20px;
+        opacity: 0;
+        pointer-events: none;
+        animation: show 0.5s ease-in;
+        animation-fill-mode: forwards;
         h3 {
           font-size: $H6;
         }
@@ -324,6 +328,7 @@
           display: none;
           &.show {
             display: flex;
+            align-items: center;
           }
         }
         .partyPieChart {
@@ -356,6 +361,7 @@
       .overview {
         .chartWrapper {
           display: flex;
+          align-items: flex-start;
           flex-direction: column;
         }
       }
@@ -436,11 +442,21 @@
     animation: rotation 1s linear infinite;
   }
 }
+
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

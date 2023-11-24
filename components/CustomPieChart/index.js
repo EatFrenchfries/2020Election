@@ -1,24 +1,67 @@
-import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import React, { useState } from "react";
+import { PieChart, Pie, Cell, Tooltip, Sector } from "recharts";
 
 import styles from "./index.module.scss";
 
+const DIFF_RADIUS = 3;
+
+const renderActiveShape = (props) => {
+  const {
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+    payload,
+    percent,
+    value,
+  } = props;
+
+  return (
+    <g>
+      <text
+        x={cx}
+        y={cy}
+        textAnchor="middle"
+        fill={fill}
+        className={styles.percent}
+      >
+        {`${(percent * 100).toFixed(1)}%`}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + DIFF_RADIUS}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
+
 const CustomPieChart = ({ data, colors, type, showMin }) => {
-  const [percent, setPercent] = useState(null);
   const [isShow, setIsShow] = useState(false);
-  const [delayShow, setDelayShow] = useState(false);
-  const handleHover = ({ percent, name }) => {
-    setPercent(`${(percent * 100).toFixed(1)}%`);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const handleHover = ({ percent, name }, index) => {
     setIsShow(true);
+    setActiveIndex(index);
   };
-  useEffect(() => {
-    if (isShow) setDelayShow(true);
-    const timer = setTimeout(() => setDelayShow(isShow), 300);
-    return () => clearTimeout(timer);
-  }, [isShow]);
+  const handleLeave = () => {
+    setIsShow(false);
+    setActiveIndex(null);
+  };
   return (
     <>
-      <PieChart width={showMin ? 72 : 120} height={showMin ? 72 : 120}>
+      <PieChart
+        width={showMin ? 72 : 120}
+        height={showMin ? 72 : 120}
+        cursor="pointer"
+      >
         {/* <Tooltip
                 contentStyle={{
                   background: "white",
@@ -31,15 +74,19 @@ const CustomPieChart = ({ data, colors, type, showMin }) => {
         <Pie
           data={data}
           innerRadius={showMin ? 20 : 33}
-          outerRadius={showMin ? 36 : 60}
+          outerRadius={showMin ? 36 - DIFF_RADIUS : 60 - DIFF_RADIUS}
           fill="#8884d8"
           dataKey="value"
           stroke="none"
           startAngle={90}
           endAngle={-270}
           onMouseEnter={handleHover}
-          onMouseLeave={() => setIsShow(false)}
-          animationDuration={500}
+          onMouseLeave={handleLeave}
+          animationBegin={10}
+          animationDuration={800}
+          animationEasing="ease-in-out"
+          activeShape={renderActiveShape}
+          activeIndex={activeIndex}
         >
           {data.map((entry, index) => (
             <Cell
@@ -54,7 +101,6 @@ const CustomPieChart = ({ data, colors, type, showMin }) => {
           ))}
         </Pie>
       </PieChart>
-      {delayShow && <span className={styles.percent}>{percent}</span>}
     </>
   );
 };
