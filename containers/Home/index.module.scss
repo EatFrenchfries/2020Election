@@ -230,7 +230,9 @@
       svg {
         width: 100%;
         max-width: 510px;
-        cursor: pointer;
+        path {
+          cursor: pointer;
+        }
       }
     }
     .tips {
