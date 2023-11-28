@@ -245,6 +245,10 @@
         max-width: 510px;
         path {
           cursor: pointer;
+          transform: all 0.2s ease-in;
+          &:hover {
+            transform: translate(-1px, -1px);
+          }
         }
       }
     }
