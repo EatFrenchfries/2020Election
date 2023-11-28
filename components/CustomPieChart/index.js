@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Sector } from "recharts";
+import { PieChart, Pie, Cell, Sector } from "recharts";
 
 import styles from "./index.module.scss";
+import { partyColor } from "utils";
 
 const DIFF_RADIUS = 3;
 
@@ -59,15 +60,6 @@ const CustomPieChart = ({ data, colors, type, showMin }) => {
         height={showMin ? 72 : 120}
         cursor="pointer"
       >
-        {/* <Tooltip
-                contentStyle={{
-                  background: "white",
-                  border: "none",
-                  height: "40px",
-                  fontSize: "16px",
-                }}
-                position={{ x: 85, y: -60 }}
-              /> */}
         <Pie
           data={data}
           innerRadius={showMin ? 20 : 33}
@@ -90,7 +82,7 @@ const CustomPieChart = ({ data, colors, type, showMin }) => {
               key={`cell-${index}`}
               fill={
                 type === "party"
-                  ? colors[entry.cand_no - 1]
+                  ? partyColor(entry.party_name)[colors]
                   : colors[index % colors.length]
               }
               style={{ outline: "none" }}

@@ -1,3 +1,5 @@
+export const SET_YEAR = "SET_YEAR";
+export const SET_CITY = "SET_CITY";
 export const SET_TOTAL_CAND = "SET_TOTAL_CAND";
 export const RESET_DATA = "RESET_DATA";
 export const RESET_DISTRICT = "RESET_DISTRICT";
@@ -8,3 +10,6 @@ export const FETCH_DISTRICT_FAIL = "FETCH_DISTRICT_FAIL";
 export const FETCH_VILLAGE = "FETCH_VILLAGE";
 export const FETCH_VILLAGE_SUCCESS = "FETCH_VILLAGE_SUCCESS";
 export const FETCH_VILLAGE_FAIL = "FETCH_VILLAGE_FAIL";
+export const FETCH_CITY = "FETCH_CITY";
+export const FETCH_CITY_SUCCESS = "FETCH_CITY_SUCCESS";
+export const FETCH_CITY_FAIL = "FETCH_CITY_FAIL";

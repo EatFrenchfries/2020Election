@@ -12,6 +12,8 @@ import getElection from "store/election/selectors";
 import Select from "components/Select";
 import Map from "components/Map";
 import DisabledBox from "components/DisabledBox";
+import TabBar from "components/TabBar";
+import Slider from "components/Slider";
 
 import Rotate from "public/images/rotate-cw.svg";
 import Right from "public/images/chevron-right.svg";
@@ -21,26 +23,28 @@ import Tip1 from "public/images/tip1.svg";
 import Tip2 from "public/images/tip2.svg";
 
 import styles from "./index.module.scss";
-import { formatPrice } from "utils";
+import { formatPrice, partyColor } from "utils";
 
 const COLORS = ["#262E49", "#CCCCCC"];
-const PARTYCOLORS = ["#DFA175", "#8894D8", "#84CB98"];
-const PARTY_DETAIL_COLOR = [
-  { backgroundColor: "#FAF1EA", borderColor: "#DFA175" },
-  { backgroundColor: "#EDEFF9", borderColor: "#8894D8" },
-  { backgroundColor: "#EDF7F0", borderColor: "#84CB98" },
-];
 
-const Home = (props) => {
+const Home = () => {
+  const {
+    districtData,
+    villageData,
+    fetchDistrictFail,
+    fetchVillageFail,
+    year,
+    cityData,
+    fetchCityFail,
+    fetchCityisLoading,
+  } = useSelector(getElection);
   const {
     ticketProfiles,
     partyData,
     cityOptions,
     sortedCitysTickets,
     citysProfilesObj,
-  } = props;
-  const { districtData, villageData, fetchDistrictFail, fetchVillageFail } =
-    useSelector(getElection);
+  } = cityData;
   const {
     options: districtOptions,
     tickets: districtTickets,
@@ -158,11 +162,15 @@ const Home = (props) => {
     !partyData ||
     !cityOptions ||
     !sortedCitysTickets ||
-    !citysProfilesObj
+    !citysProfilesObj ||
+    fetchCityFail
   )
     return (
       <div className={styles.container}>
-        <div className={styles.tabBar}>第15任 總統副總統大選</div>
+        <TabBar handleReset={handleReset} />
+        {fetchCityFail && (
+          <p className={styles.error}>讀取縣市資料失敗，請稍後再試！</p>
+        )}
       </div>
     );
   else {
@@ -171,25 +179,29 @@ const Home = (props) => {
     const totalData = formatData(ticketProfiles[0]);
     let citysColor = {};
     Object.keys(sortedCitysTickets).map((key) => {
-      citysColor[key] =
-        sortedCitysTickets[key]?.sort((a, b) => b.value - a.value)[0].cand_no -
-        1;
+      citysColor[key] = [...sortedCitysTickets[key]]?.sort(
+        (a, b) => b.value - a.value
+      )[0].party_name;
     });
     return (
       <div className={styles.container}>
         {(fetchDistrictFail || fetchVillageFail) && (
           <div className={styles.errorText}>讀取區域資料失敗，請稍後再試！</div>
         )}
-        <div className={styles.tabBar}>第15任 總統副總統大選</div>
+        <TabBar handleReset={handleReset} />
         <div className={styles.search}>
           <div className={styles.dropDown}>
-            <Select
-              options={cityOptions}
-              value={city?.value}
-              onChange={(e) => handleCity(e)}
-            />
+            {!fetchCityisLoading ? (
+              <Select
+                options={cityOptions}
+                value={city?.value}
+                onChange={(e) => handleCity(e)}
+              />
+            ) : (
+              <DisabledBox />
+            )}
             <div className={styles.drop}>
-              {districtOptions ? (
+              {districtOptions && !fetchCityisLoading ? (
                 <Select
                   options={districtOptions}
                   value={district?.value}
@@ -198,7 +210,7 @@ const Home = (props) => {
               ) : (
                 <DisabledBox />
               )}
-              {villageOptions ? (
+              {villageOptions && !fetchCityisLoading ? (
                 <Select
                   options={villageOptions}
                   value={village?.value}
@@ -223,7 +235,11 @@ const Home = (props) => {
               投票概況
               {showProfiles ? <Down /> : <Right />}
             </h3>
-            <div className={styles.chartWrapper}>
+            <div
+              className={`${styles.chartWrapper} ${
+                !fetchCityisLoading ? styles.show : ""
+              }`}
+            >
               <div
                 className={`${styles.totalProfiles} ${
                   showProfiles ? styles.show : ""
@@ -304,15 +320,15 @@ const Home = (props) => {
                   <CustomPieChart
                     data={(code
                       ? [...areasData.tickets[code.value]]
-                      : partyData
+                      : [...partyData]
                     ).sort((a, b) => b.value - a.value)}
-                    colors={PARTYCOLORS}
+                    colors={"color"}
                     type="party"
                     showMin={showMin}
                   />
                 </div>
                 <ul className={styles.partyProfiles}>
-                  {(code ? [...areasData.tickets[code.value]] : partyData)
+                  {(code ? [...areasData.tickets[code.value]] : [...partyData])
                     .sort((a, b) => b.value - a.value)
                     .map((v, idx) => {
                       const {
@@ -323,11 +339,13 @@ const Home = (props) => {
                         ticket_percent,
                       } = v;
                       return (
-                        <li key={party_name}>
+                        <li key={`${party_name}_${member}`}>
                           <div
                             className={styles.num}
                             style={{
-                              backgroundColor: `${PARTYCOLORS[cand_no - 1]}`,
+                              backgroundColor: `${
+                                partyColor(party_name).color
+                              }`,
                             }}
                           >
                             {cand_no}
@@ -338,7 +356,9 @@ const Home = (props) => {
                           </div>
                           <span
                             style={{
-                              backgroundColor: `${PARTYCOLORS[cand_no - 1]}`,
+                              backgroundColor: `${
+                                partyColor(party_name).color
+                              }`,
                             }}
                           ></span>
                           <div className={styles.rate}>
@@ -355,46 +375,48 @@ const Home = (props) => {
           <div className={styles.map}>
             <Map city={city} setCity={setCity} citysColor={citysColor} />
           </div>
-          <div className={`${styles.tips}`}>
-            {city ? (
-              <>
-                <Details area={city} areasTickets={sortedCitysTickets} />
-                {district && (
-                  <Details area={district} areasTickets={districtTickets} />
-                )}
-                {village && (
-                  <Details area={village} areasTickets={villageTickets} />
-                )}
-              </>
-            ) : (
-              <>
-                <div className={styles.tip}>
-                  <div className={styles.topBox}>
-                    <div className={styles.icon}>
-                      <Info />
-                      小提示
+          <Slider>
+            <div className={`${styles.tips}`}>
+              {city ? (
+                <>
+                  <Details area={city} areasTickets={sortedCitysTickets} />
+                  {district && (
+                    <Details area={district} areasTickets={districtTickets} />
+                  )}
+                  {village && (
+                    <Details area={village} areasTickets={villageTickets} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className={styles.tip}>
+                    <div className={styles.topBox}>
+                      <div className={styles.icon}>
+                        <Info />
+                        小提示
+                      </div>
+                      <p>點擊選擇縣市、區、村里，可查看選舉結果</p>
                     </div>
-                    <p>點擊選擇縣市、區、村里，可查看選舉結果</p>
-                  </div>
-                  <div className={styles.image}>
-                    <Tip1 />
-                  </div>
-                </div>
-                <div className={styles.tip}>
-                  <div className={styles.topBox}>
-                    <div className={styles.icon}>
-                      <Info />
-                      小提示
+                    <div className={styles.image}>
+                      <Tip1 />
                     </div>
-                    <p>點擊地圖查看縣市的選舉結果</p>
                   </div>
-                  <div className={styles.image}>
-                    <Tip2 />
+                  <div className={styles.tip}>
+                    <div className={styles.topBox}>
+                      <div className={styles.icon}>
+                        <Info />
+                        小提示
+                      </div>
+                      <p>點擊地圖查看縣市的選舉結果</p>
+                    </div>
+                    <div className={styles.image}>
+                      <Tip2 />
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          </Slider>
         </div>
       </div>
     );
@@ -427,18 +449,18 @@ const Details = ({ area, areasTickets }) => {
   return (
     <div
       className={styles.details}
-      style={PARTY_DETAIL_COLOR[sortedAreaTicktes[0].cand_no - 1]}
+      style={partyColor(sortedAreaTicktes[0].party_name).detailColor}
     >
       <h3>{area?.area_name}</h3>
       <ul className={styles.partyProfiles}>
         {sortedAreaTicktes?.map((v, idx) => {
           const { party_name, member, value, cand_no, ticket_percent } = v;
           return (
-            <li key={party_name}>
+            <li key={`${party_name}_${member}`}>
               <div
                 className={styles.num}
                 style={{
-                  backgroundColor: `${PARTYCOLORS[cand_no - 1]}`,
+                  backgroundColor: `${partyColor(party_name).color}`,
                 }}
               >
                 {cand_no}
@@ -449,7 +471,7 @@ const Details = ({ area, areasTickets }) => {
               </div>
               <span
                 style={{
-                  backgroundColor: `${PARTYCOLORS[cand_no - 1]}`,
+                  backgroundColor: `${partyColor(party_name).color}`,
                 }}
               ></span>
               <div className={styles.rate}>

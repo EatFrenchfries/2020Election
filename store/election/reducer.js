@@ -1,5 +1,8 @@
 import { produce } from "immer";
 import {
+  FETCH_CITY,
+  FETCH_CITY_FAIL,
+  FETCH_CITY_SUCCESS,
   FETCH_DISTRICT,
   FETCH_DISTRICT_FAIL,
   FETCH_DISTRICT_SUCCESS,
@@ -9,7 +12,9 @@ import {
   RESET_DATA,
   RESET_DISTRICT,
   RESET_VILLAGE,
+  SET_CITY,
   SET_TOTAL_CAND,
+  SET_YEAR,
 } from "./types";
 
 const initData = {
@@ -19,11 +24,21 @@ const initData = {
 };
 
 export const initState = {
+  year: 2020,
   totalCand: [],
   districtData: initData,
   villageData: initData,
   fetchDistrictFail: false,
   fetchVillageFail: false,
+  fetchCityFail: false,
+  fetchCityisLoading: false,
+  cityData: {
+    ticketProfiles: null,
+    partyData: null,
+    cityOptions: null,
+    sortedCitysTickets: null,
+    citysProfilesObj: null,
+  },
 };
 
 const reducer = (state = initState, action) =>
@@ -48,6 +63,7 @@ const reducer = (state = initState, action) =>
         return;
       case FETCH_DISTRICT:
         draft.fetchDistrictFail = false;
+        draft.villageData = initData;
         return;
       case FETCH_DISTRICT_SUCCESS:
         draft.districtData = action.data;
@@ -63,6 +79,25 @@ const reducer = (state = initState, action) =>
         return;
       case FETCH_VILLAGE_FAIL:
         draft.fetchVillageFail = true;
+        return;
+      case SET_YEAR:
+        draft.year = action.year;
+        return;
+      case SET_CITY:
+        draft.cityData = action.data;
+        return;
+      case FETCH_CITY:
+        draft.districtData = initData;
+        draft.villageData = initData;
+        draft.fetchCityisLoading = true;
+        return;
+      case FETCH_CITY_SUCCESS:
+        draft.fetchCityisLoading = false;
+        draft.fetchCityFail = false;
+        draft.cityData = action.data;
+        return;
+      case FETCH_CITY_FAIL:
+        draft.fetchCityFail = true;
         return;
 
       default:

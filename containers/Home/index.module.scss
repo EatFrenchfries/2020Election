@@ -3,7 +3,7 @@
 .container {
   height: 100%;
   font-size: $H6;
-  position: relative;
+  // position: relative;
   @include media("TB") {
     & > div {
       padding-left: 25px;
@@ -23,25 +23,6 @@
         padding-left: 25px;
         padding-right: 25px;
       }
-    }
-  }
-  .tabBar {
-    display: inline-block;
-    font-size: $H6;
-    font-weight: bold;
-    line-height: 1.4;
-    cursor: pointer;
-    &::after {
-      content: "";
-      display: block;
-      width: 100%;
-      height: 4px;
-      background-color: #262e49;
-      margin-top: 12px;
-    }
-    @include media("mobile") {
-      font-size: $h6;
-      font-weight: 700;
     }
   }
   .search {
@@ -125,7 +106,8 @@
     .overview {
       flex: 0 0 auto;
       width: 270px;
-      height: 620px;
+      height: intrinsic;
+      height: max-content;
       padding: 20px;
       border-radius: 8px;
       background-color: #fff;
@@ -136,6 +118,13 @@
         margin-bottom: 20px;
         > svg {
           display: none;
+        }
+      }
+      .chartWrapper {
+        opacity: 0;
+        transform: all 0.3s ease-in;
+        &.show {
+          opacity: 1;
         }
       }
       .pieChart {
@@ -249,6 +238,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      max-height: 700px;
       margin: 0 10px;
       svg {
         width: 100%;
@@ -416,14 +406,18 @@
   }
   .errorText {
     position: absolute;
-    left: 230px;
-    top: 8px;
+    left: 300px;
+    top: 20px;
     color: #fd8e8e;
     @include media("mobile") {
       font-size: $h6;
-      left: 188px;
-      top: 10px;
+      left: 150px;
+      top: 18px;
     }
+  }
+  .error {
+    margin-top: 15px;
+    color: #fd8e8e;
   }
 }
 .partyProfiles {

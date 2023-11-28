@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setTotalCand } from "store/election/actions";
+import { setCity, setTotalCand, setYear } from "store/election/actions";
 
 import Layout from "containers/Layout";
 import Home from "containers/Home";
@@ -10,14 +10,34 @@ import {
   formatAreasProfilesObj,
   formatAreasTickets,
   formatOptions,
+  formatYearToId,
+  partyColor,
 } from "utils";
 import { elections } from "client/apiEndpoint";
 
 const Index = (props) => {
-  const { totalCand } = props;
+  const {
+    totalCand,
+    year,
+    ticketProfiles,
+    partyData,
+    cityOptions,
+    sortedCitysTickets,
+    citysProfilesObj,
+  } = props;
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(setTotalCand(totalCand));
+    dispatch(setYear(year));
+    dispatch(
+      setCity({
+        ticketProfiles,
+        partyData,
+        cityOptions,
+        sortedCitysTickets,
+        citysProfilesObj,
+      })
+    );
   }, []);
   return (
     <Layout>
@@ -28,13 +48,15 @@ const Index = (props) => {
 
 export const getServerSideProps = async (ctx) => {
   let returnData = { props: {} };
+  let year = 2020;
+  let id = formatYearToId(year);
   let code = "00_000_00_000_0000";
   let endpoints = [
-    elections.ticketProfiles("N", code),
-    elections.partyData("N", code),
-    elections.areas("C", code),
-    elections.areasTickets("C", code),
-    elections.areasProfiles("C", code),
+    elections.ticketProfiles(id, "N", code),
+    elections.partyData(id, "N", code),
+    elections.areas(id, "C", code),
+    elections.areasTickets(id, "C", code),
+    elections.areasProfiles(id, "C", code),
   ];
   await Promise.all(endpoints.map((endpoint) => axios.get(endpoint)))
     .then(async function (results) {
@@ -92,6 +114,7 @@ export const getServerSideProps = async (ctx) => {
           sortedCitysTickets,
           citysProfilesObj,
           totalCand,
+          year,
         };
       }
     })
