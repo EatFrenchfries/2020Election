@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import { Analytics } from "@vercel/analytics/react";
 
 import { useSelector } from "react-redux";
 import getElection from "store/election/selectors";
@@ -20,7 +21,10 @@ const Layout = ({ children }) => {
         <meta property="og:image" content="/images/ogImage.png" />
       </Head>
       <header className={styles.header}>{year} 開票地圖</header>
-      <main className={styles.container}>{children}</main>
+      <main className={styles.container}>
+        {children}
+        <Analytics />
+      </main>
     </React.Fragment>
   );
 };
